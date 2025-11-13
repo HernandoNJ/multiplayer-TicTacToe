@@ -14,7 +14,7 @@ namespace CodeMonkey.FreeWindow {
     public class MainWindowFree : EditorWindow {
 
 
-        [SerializeField] private CodeMonkeyFreeSO codeMonkeyFreeSO;
+        [SerializeField] private CMSO codeMonkeyFreeSO;
         [SerializeField] private VisualTreeAsset visualTreeAsset;
         [SerializeField] private VisualTreeAsset textTemplateVisualTreeAsset;
         [SerializeField] private VisualTreeAsset codeTemplateVisualTreeAsset;
@@ -25,11 +25,14 @@ namespace CodeMonkey.FreeWindow {
             EditorApplication.update += Startup;
         }
 
-        private static void Startup() {
+        public void StartNewWindow() => Startup();
+
+        [MenuItem("Code Monkey Free Assets/Startup")]
+        public static void Startup() {
             EditorApplication.update -= Startup;
 
             try {
-                CodeMonkeyFreeSO codeMonkeyInteractiveSO = CodeMonkeyFreeSO.GetCodeMonkeyFreeSO();
+                CMSO codeMonkeyInteractiveSO = CMSO.GetCodeMonkeyFreeSO();
                 long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 long secondsBetweenShowingWindow = 60 * 60 * 24;
                 if (unixTimestamp - codeMonkeyInteractiveSO.lastShownTimestamp < secondsBetweenShowingWindow) {
@@ -247,7 +250,7 @@ namespace CodeMonkey.FreeWindow {
             lectureListVisualElement = root.Q<VisualElement>("lectureList");
             mainMenuVisualElement = root.Q<VisualElement>("mainMenu");
 
-            root.Q<Label>("versionLabel").text = CodeMonkeyFreeSO.GetCodeMonkeyFreeSO().currentVersion;
+            root.Q<Label>("versionLabel").text = CMSO.GetCodeMonkeyFreeSO().currentVersion;
 
             Button lectureListButton = mainMenuVisualElement.Q<Button>("lectureListButton");
             lectureListButton.RegisterCallback((ClickEvent clickEvent) => {
@@ -262,7 +265,7 @@ namespace CodeMonkey.FreeWindow {
             mainMenuVisualElement.style.display = DisplayStyle.Flex;
 
             // Check for updates
-            CodeMonkeyFreeSO.CheckForUpdates((CodeMonkeyFreeSO.LastUpdateResponse lastUpdateResponse) => {
+            CMSO.CheckForUpdates((CMSO.LastUpdateResponse lastUpdateResponse) => {
                 if (codeMonkeyFreeSO.currentVersion == lastUpdateResponse.version) {
                     mainMenuVisualElement.Q<VisualElement>("checkingForUpdates").style.display = DisplayStyle.None;
                     return;
@@ -285,7 +288,7 @@ namespace CodeMonkey.FreeWindow {
             VisualElement messageVisualElement =
                 mainMenuVisualElement.Q<VisualElement>("message");
 
-            CodeMonkeyFreeSO.GetLatestMessage((CodeMonkeyFreeSO.WebsiteLatestMessage websiteLatestMessage) => {
+            CMSO.GetLatestMessage((CMSO.WebsiteLatestMessage websiteLatestMessage) => {
                 messageVisualElement.Q<Label>("messageLabel").text = websiteLatestMessage.text;
             });
 
@@ -309,7 +312,7 @@ namespace CodeMonkey.FreeWindow {
             qotdVisualElement.Q<Button>("answerDButton").style.display = DisplayStyle.None;
             qotdVisualElement.Q<Button>("answerEButton").style.display = DisplayStyle.None;
 
-            CodeMonkeyFreeSO.GetLastQOTD((CodeMonkeyFreeSO.LastQOTDResponse lastQOTDResponse) => {
+            CMSO.GetLastQOTD((CMSO.LastQOTDResponse lastQOTDResponse) => {
                 openQotdURL = () => {
                     string qotdUrl = "https://unitycodemonkey.com/qotd_ask.php?q=" + lastQOTDResponse.questionId;
                     Application.OpenURL(qotdUrl);
@@ -360,14 +363,14 @@ namespace CodeMonkey.FreeWindow {
 
 
 
-            CodeMonkeyFreeSO.GetWebsiteLatestVideos((CodeMonkeyFreeSO.LatestVideos latestVideos) => {
+            CMSO.GetWebsiteLatestVideos((CMSO.LatestVideos latestVideos) => {
                 AddLatestVideoReference(latestVideos.videos[0], latestVideosVisualElement.Q<VisualElement>("_1Container"));
                 AddLatestVideoReference(latestVideos.videos[1], latestVideosVisualElement.Q<VisualElement>("_2Container"));
                 AddLatestVideoReference(latestVideos.videos[2], latestVideosVisualElement.Q<VisualElement>("_3Container"));
                 AddLatestVideoReference(latestVideos.videos[3], latestVideosVisualElement.Q<VisualElement>("_4Container"));
             });
 
-            void AddLatestVideoReference(CodeMonkeyFreeSO.LatestVideoSingle latestVideoSingle, VisualElement containerVisualElement) {
+            void AddLatestVideoReference(CMSO.LatestVideoSingle latestVideoSingle, VisualElement containerVisualElement) {
                 string thumbnailUrl = $"https://img.youtube.com/vi/{latestVideoSingle.youTubeId}/mqdefault.jpg";
                 string url = $"https://unitycodemonkey.com/video.php?v={latestVideoSingle.youTubeId}";
                 AddVideoReference(
@@ -396,7 +399,7 @@ namespace CodeMonkey.FreeWindow {
                 Application.OpenURL(getTopLinkUrl());
             });
 
-            CodeMonkeyFreeSO.GetLastDynamicHeader((CodeMonkeyFreeSO.LastDynamicHeaderResponse lastDynamicHeaderResponse) => {
+            CMSO.GetLastDynamicHeader((CMSO.LastDynamicHeaderResponse lastDynamicHeaderResponse) => {
                 getTopLinkUrl = () => "https://cmonkey.co/" + lastDynamicHeaderResponse.topLink;
 
                 dynamicHeaderVisualElement.Q<VisualElement>("image").style.display = DisplayStyle.Flex;

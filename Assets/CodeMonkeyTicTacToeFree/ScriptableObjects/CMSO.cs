@@ -7,29 +7,45 @@ using UnityEngine.Networking;
 namespace CodeMonkey.FreeWindow {
 
     [CreateAssetMenu()]
-    public class CodeMonkeyFreeSO : ScriptableObject {
+    public class CMSO : ScriptableObject {
 
 
         private const long SECONDS_BETWEEN_CONTACTING_WEBSITE = 3600;
 
 
-        private static CodeMonkeyFreeSO codeMonkeyFreeSO;
+        private static CMSO codeMonkeyFreeSO;
 
 
-        public static CodeMonkeyFreeSO GetCodeMonkeyFreeSO() {
+        public static CMSO GetCodeMonkeyFreeSO() {
             if (codeMonkeyFreeSO != null) {
                 return codeMonkeyFreeSO;
             }
-            string[] codeMonkeyFreeSOGuidArray = AssetDatabase.FindAssets(nameof(CodeMonkeyFreeSO));
+            string[] codeMonkeyFreeSOGuidArray = AssetDatabase.FindAssets(nameof(CMSO));
 
-            foreach (string codeMonkeyFreeSOGuid in codeMonkeyFreeSOGuidArray) {
+            foreach (string codeMonkeyFreeSOGuid in codeMonkeyFreeSOGuidArray)
+            {
                 string codeMonkeyFreeSOPath = AssetDatabase.GUIDToAssetPath(codeMonkeyFreeSOGuid);
-                codeMonkeyFreeSO = AssetDatabase.LoadAssetAtPath<CodeMonkeyFreeSO>(codeMonkeyFreeSOPath);
+                codeMonkeyFreeSO = AssetDatabase.LoadAssetAtPath<CMSO>(codeMonkeyFreeSOPath);
                 return codeMonkeyFreeSO;
             }
 
             Debug.LogError("Cannot find CodeMonkeyFreeSO!");
             return null;
+        }
+
+        // This method will appear in the Inspector's context menu
+        [ContextMenu("CM: Clear Cached Data")]
+        public void ClearCachedData()
+        {
+            // Since this is a regular method, it has access to instance fields.
+            Debug.Log("CodeMonkeyFreeSO cache cleared via Inspector context menu.");
+
+            // Example: reset timestamps or cached web data
+            lastShownTimestamp = 0;
+            checkedLastUpdateTimestamp = 0;
+
+            // IMPORTANT: Mark the object as dirty so Unity saves the changes
+            EditorUtility.SetDirty(this);
         }
 
 
@@ -77,7 +93,7 @@ namespace CodeMonkey.FreeWindow {
         }
 
         public static void CheckForUpdates(Action<LastUpdateResponse> onFoundUpdate) {
-            CodeMonkeyFreeSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
+            CMSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
             long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             if (codeMonkeyInteractiveSO.lastUpdateResponse.version == null || codeMonkeyInteractiveSO.lastUpdateResponse.version == "") {
@@ -149,7 +165,7 @@ namespace CodeMonkey.FreeWindow {
         }
 
         public static void GetLastQOTD(Action<LastQOTDResponse> onResponse) {
-            CodeMonkeyFreeSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
+            CMSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
             long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             long secondsBetweenCheckingForUpdates = SECONDS_BETWEEN_CONTACTING_WEBSITE;
@@ -214,7 +230,7 @@ namespace CodeMonkey.FreeWindow {
         }
 
         public static void GetLastDynamicHeader(Action<LastDynamicHeaderResponse> onResponse) {
-            CodeMonkeyFreeSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
+            CMSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
             long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             long secondsBetweenCheckingForUpdates = SECONDS_BETWEEN_CONTACTING_WEBSITE;
@@ -278,7 +294,7 @@ namespace CodeMonkey.FreeWindow {
         }
 
         public static void GetLatestMessage(Action<WebsiteLatestMessage> onResponse) {
-            CodeMonkeyFreeSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
+            CMSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
             long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             long secondsBetweenCheckingForUpdates = SECONDS_BETWEEN_CONTACTING_WEBSITE;
@@ -350,7 +366,7 @@ namespace CodeMonkey.FreeWindow {
         }
 
         public static void GetWebsiteLatestVideos(Action<LatestVideos> onResponse) {
-            CodeMonkeyFreeSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
+            CMSO codeMonkeyInteractiveSO = GetCodeMonkeyFreeSO();
             long unixTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             long secondsBetweenCheckingForUpdates = SECONDS_BETWEEN_CONTACTING_WEBSITE;
